@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tudor Dragotescu</title>
+  <meta name="description" content="Systems Engineering and Applied Informatics student at POLITEHNICA Bucharest. I write C, C++ and Python, and I'm especially interested in how software moves and processes data across networks.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tudor Dragotescu">
+  <meta property="og:description" content="Systems Engineering and Applied Informatics student at POLITEHNICA Bucharest. Projects in C, C++ and Python, including a Layer 4 load balancer.">
+  <meta name="theme-color" content="#0A1530">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="site-header__name" href="#top">Tudor Dragotescu</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+        <span class="nav-toggle__label">Menu</span>
+      </button>
+      <nav id="site-nav" class="site-nav" aria-label="Sections">
+        <ul>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#simulation">Simulation</a></li>
+          <li><a href="#education">Education</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#achievements">Achievements</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero" aria-labelledby="hero-name">
+      <div class="wrap hero__grid">
+        <div class="hero__intro">
+          <h1 id="hero-name" class="hero__name">Tudor Dragotescu</h1>
+          <p class="hero__lead">I’m a Systems Engineering and Applied Informatics student at POLITEHNICA Bucharest. I write C, C++ and Python, and I’m especially interested in how software moves and processes data across networks.</p>
+          <div class="hero__actions" id="hero-actions">
+            <a class="btn btn--primary" href="#projects">Explore my projects</a>
+            <a class="text-link text-link--light" href="https://github.com/TudorD19" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <figure class="hero__portrait">
+          <picture>
+            <source type="image/webp" srcset="assets/img/tudor-dragotescu-640.webp 640w, assets/img/tudor-dragotescu-1200.webp 1200w" sizes="(max-width: 52rem) 88vw, 27rem">
+            <img src="assets/img/tudor-dragotescu-1200.jpg" srcset="assets/img/tudor-dragotescu-640.jpg 640w, assets/img/tudor-dragotescu-1200.jpg 1200w" sizes="(max-width: 52rem) 88vw, 27rem" width="1200" height="1500" alt="Portrait of Tudor Dragotescu" fetchpriority="high">
+          </picture>
+        </figure>
+      </div>
+    </section>
+
+    <section id="projects" class="band" aria-labelledby="projects-title">
+      <div class="wrap">
+        <h2 id="projects-title" class="band__title">Projects</h2>
+        <p class="band__lead">One project about moving packets across a network, and one about organising data in memory.</p>
+        <div id="project-list" class="projects"></div>
+        <noscript>
+          <p>The project list needs JavaScript. You can find the same projects on <a href="https://github.com/TudorD19">my GitHub profile</a>.</p>
+        </noscript>
+      </div>
+    </section>
+
+    <section id="simulation" class="band band--navy" aria-labelledby="simulation-title">
+      <div class="wrap">
+        <h2 id="simulation-title" class="band__title">Load balancer simulation</h2>
+        <p class="band__lead">This is the behaviour of the load balancer project, rebuilt as a small model you can run here. Clients connect to one virtual IP. The balancer hands new connections to the servers in turn and keeps each connection on the server it started with. When a server is taken offline, new connections skip it, and a connection that was mapped to it gets a new server on its next packet.</p>
+
+        <div class="sim" id="sim">
+          <ol class="sim__steps">
+            <li>Start the traffic and watch connections spread across the three servers.</li>
+            <li>Take a server offline. New connections skip it, and its connections get a new server as their next packets arrive.</li>
+            <li>Bring it back online. It returns to the round-robin pool, and new connections reach it again.</li>
+          </ol>
+
+          <div class="sim__controls" role="group" aria-label="Traffic controls">
+            <button type="button" class="btn btn--primary" id="sim-auto">Start traffic</button>
+            <button type="button" class="btn btn--line" id="sim-connect">New connection</button>
+            <button type="button" class="btn btn--line" id="sim-send">Send packets</button>
+            <button type="button" class="btn btn--line" id="sim-reset">Reset</button>
+          </div>
+
+          <div class="sim__stage" id="sim-stage">
+            <svg class="sim__wires" id="sim-wires" aria-hidden="true" focusable="false"></svg>
+            <div class="node node--client" id="sim-client">
+              <span class="node__name">Client</span>
+              <span class="node__addr">10.0.0.1</span>
+            </div>
+            <div class="node node--lb" id="sim-lb">
+              <span class="node__name">Load balancer</span>
+              <span class="node__addr">Virtual IP 10.0.0.100:80</span>
+              <span class="node__note">Next in rotation: <strong id="sim-next">Server 1</strong></span>
+            </div>
+            <ul class="servers" id="sim-servers" aria-label="Backend servers"></ul>
+            <div class="sim__packets" id="sim-packets" aria-hidden="true"></div>
+          </div>
+
+          <p class="visually-hidden" role="status" id="sim-status"></p>
+
+          <div class="sim__panels">
+            <section class="panel" aria-labelledby="flows-title">
+              <h3 id="flows-title" class="panel__title">Active connections</h3>
+              <table class="flows">
+                <thead>
+                  <tr><th scope="col">Client</th><th scope="col">Server</th><th scope="col" class="num">Packets</th></tr>
+                </thead>
+                <tbody id="sim-flows"></tbody>
+              </table>
+              <p class="panel__empty" id="sim-flows-empty">No connections yet. Start the traffic or open a new connection.</p>
+            </section>
+            <section class="panel" aria-labelledby="log-title">
+              <h3 id="log-title" class="panel__title">What just happened</h3>
+              <ol class="log" id="sim-log" tabindex="0" aria-labelledby="log-title"></ol>
+              <p class="panel__empty" id="sim-log-empty">Events appear here as the balancer makes decisions.</p>
+            </section>
+          </div>
+
+          <p class="sim__note">This is a simplified model written in JavaScript for this page, not the project code. The addresses match the project’s topology. The real balancer rewrites packets with Scapy inside a Mininet network. As in the project, an established TCP connection is not migrated: the old mapping is removed and the client is assigned a new server.</p>
+          <noscript><p class="sim__note">The simulation needs JavaScript to run.</p></noscript>
+        </div>
+      </div>
+    </section>
+
+    <section id="education" class="band" aria-labelledby="education-title">
+      <div class="wrap">
+        <h2 id="education-title" class="band__title">Education</h2>
+        <div class="rows">
+          <article class="row">
+            <p class="row__when">Oct 2025 – Jun 2029</p>
+            <div class="row__body">
+              <h3 class="row__title">National University of Science and Technology POLITEHNICA Bucharest</h3>
+              <p class="row__sub">Faculty of Automatic Control and Computer Science</p>
+              <p>B.Sc. in Systems Engineering and Applied Informatics. I’m in the second year of a four-year programme, and I finished my first year with a cumulative GPA of 8.64/10.</p>
+              <p class="row__detail"><span class="row__detail-label">Relevant coursework:</span> Data Structures &amp; Algorithms, Programming Fundamentals, Linear Algebra, Linux/Unix Operating Systems, Object-Oriented Programming, Probability and Statistics.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">Sep 2021 – Jun 2025</p>
+            <div class="row__body">
+              <h3 class="row__title">Saint Sava National College, Bucharest</h3>
+              <p class="row__sub">High School Diploma</p>
+              <p>Romanian Baccalaureate: 9.56/10 overall, with 10/10 in Mathematics and 9.40/10 in Physics.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" class="band band--tint" aria-labelledby="skills-title">
+      <div class="wrap">
+        <h2 id="skills-title" class="band__title">Skills</h2>
+        <div class="skills">
+          <section class="skill-card skill-card--lead" aria-labelledby="skills-code">
+            <h3 id="skills-code" class="skill-card__title">Programming languages</h3>
+            <ul class="skill-lead"><li>C</li><li>C++</li><li>Python</li><li>Bash</li><li>JavaScript</li></ul>
+          </section>
+          <section class="skill-card skill-card--tools" aria-labelledby="skills-tools">
+            <h3 id="skills-tools" class="skill-card__title">Tools and technologies</h3>
+            <ul class="skill-chips"><li>Git</li><li>GitHub</li><li>Linux/WSL</li><li>VS Code</li><li>Cisco Packet Tracer</li><li>Mininet</li><li>Scapy</li><li>Flask</li><li>AWS (fundamentals)</li></ul>
+          </section>
+          <section class="skill-card skill-card--net" aria-labelledby="skills-net">
+            <h3 id="skills-net" class="skill-card__title">Networking</h3>
+            <ul class="skill-chips"><li>OSI model</li><li>TCP/IP</li><li>IPv4/IPv6</li><li>Subnetting</li><li>Routing</li><li>Switching</li></ul>
+          </section>
+          <section class="skill-card skill-card--wide" aria-labelledby="skills-lang">
+            <h3 id="skills-lang" class="skill-card__title">Languages</h3>
+            <ul class="skill-langs">
+              <li><span class="skill-langs__name">Romanian</span><span class="skill-langs__level">Native</span></li>
+              <li><span class="skill-langs__name">English</span><span class="skill-langs__level">C2</span></li>
+              <li><span class="skill-langs__name">German</span><span class="skill-langs__level">B1</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="achievements" class="band" aria-labelledby="achievements-title">
+      <div class="wrap">
+        <h2 id="achievements-title" class="band__title">Training and achievements</h2>
+
+        <h3 class="band__subtitle">Training and courses</h3>
+        <div class="rows">
+          <article class="row">
+            <p class="row__when">Jul 2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Network Security &amp; Design Summer School (NSDSS)</h4>
+              <p class="row__sub">Hackademy, POLITEHNICA Bucharest</p>
+              <p>An intensive technical programme covering CCNA 2–3, Fortinet fundamentals, Python for networking, Mininet-based network emulation and JavaScript web development. It ended with the team hackathon where we built the load balancer.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">Mar – Jul 2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Cisco Networking Academy, CCNA course series</h4>
+              <ul class="courses">
+                <li><span class="courses__tag">CCNA 1</span><span class="courses__name">Introduction to Networks</span></li>
+                <li><span class="courses__tag">CCNA 2</span><span class="courses__name">Switching, Routing &amp; Wireless Essentials</span></li>
+                <li><span class="courses__tag">CCNA 3</span><span class="courses__name">Enterprise Networking, Security &amp; Automation</span></li>
+              </ul>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">Jul – Oct 2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Anthropic Claude Academy</h4>
+              <p>Claude Code 101 and Claude Code in Action.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">In progress</p>
+            <div class="row__body">
+              <h4 class="row__title">AWS Certified Cloud Practitioner</h4>
+              <p>I’m preparing for the exam.</p>
+            </div>
+          </article>
+        </div>
+
+        <h3 class="band__subtitle">Awards and competitions</h3>
+        <div class="rows">
+          <article class="row">
+            <p class="row__when">2024</p>
+            <div class="row__body">
+              <h4 class="row__title">1st place, Zircon Physics-Chemistry Competition</h4>
+              <p>Organised by Gheorghe Asachi Technical University of Iași.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">Oct 2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Participant, Bloomberg BPuzzled</h4>
+              <p>A team logic-puzzle competition in an escape-room style, designed by Bloomberg engineers.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">Oct 2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Participant, AWS GameDay: The Frugal Architect</h4>
+              <p>Hands-on team challenges on cost-aware cloud architecture.</p>
+            </div>
+          </article>
+          <article class="row">
+            <p class="row__when">2026</p>
+            <div class="row__body">
+              <h4 class="row__title">Volunteer exam room supervisor</h4>
+              <p>National stage of the AcadNet Applied Informatics Olympiad.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="band band--navy contact" aria-labelledby="contact-title">
+      <div class="wrap">
+        <h2 id="contact-title" class="band__title">Contact</h2>
+        <p class="band__lead">I’m looking for internships. You can reach me here.</p>
+        <p class="contact__email"><a href="mailto:tudor.dragotescu@gmail.com">tudor.dragotescu@gmail.com</a></p>
+        <ul class="contact__list" id="contact-list">
+          <li>
+            <span class="contact__label">GitHub</span>
+            <a class="text-link text-link--light" href="https://github.com/TudorD19" rel="noopener">github.com/TudorD19</a>
+          </li>
+          <li>
+            <span class="contact__label">LinkedIn</span>
+            <a class="text-link text-link--light" href="https://www.linkedin.com/in/tudor-dragotescu/" rel="noopener">linkedin.com/in/tudor-dragotescu</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <p>© 2026 Tudor Dragotescu</p>
+      <a class="text-link text-link--light" href="#top">Back to top</a>
+    </div>
+  </footer>
+
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/lb-core.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/lb-ui.js"></script>
+</body>
+</html>
